@@ -1,0 +1,1 @@
+In this project, I analyzed a customer shopping dataset from various regions across the United States to uncover insights into shopping trends and customer behavior. The aim was to use data analysis and visualization techniques to provide actionable insights for enhancing business strategies.
