@@ -1,0 +1,199 @@
+# Analysis and visualization of customer shopping data in US
+
+# Loading and installing packages
+
+install.packages("tidyverse")
+install.packages("corrplot")
+install.packages("reshape2")
+install.packages("ggthemes")
+install.packages("factoextra")
+
+#loading library
+library(tidyverse)
+library(corrplot)
+library(reshape2)
+library(ggthemes)
+library(factoextra)
+
+library(readr)
+shopping_trends_datasets <- read_csv("shopping trends datasets.csv")
+
+my_data <- read.csv("shopping trends datasets.csv")
+# View data
+head(my_data)
+
+dim(my_data)
+
+is.data.frame(my_data)
+
+str(my_data)
+
+colnames(my_data)
+
+# Data Cleaning
+my_data$Gender<- as.factor(my_data$Gender)
+my_data$Age<- as.numeric(my_data$Age)
+my_data$Item.Purchased<- as.factor(my_data$Item.Purchased)
+my_data$Category<- as.factor(my_data$Category)
+my_data$Purchase.Amount..USD.<- as.numeric(my_data$Purchase.Amount..USD.)
+my_data$Customer.ID<- as.integer(my_data$Customer.ID)
+my_data$Location<- as.factor(my_data$Location)
+my_data$Size<- as.factor(my_data$Size)
+my_data$Color<- as.factor(my_data$Color)
+my_data$Season<- as.factor(my_data$Season)
+my_data$Review.Rating<- as.numeric(my_data$Review.Rating)
+my_data$Subscription.Status<- as.factor(my_data$Subscription.Status)
+my_data$Payment.Method<- as.factor(my_data$Payment.Method)
+my_data$Shipping.Type<- as.factor(my_data$Shipping.Type)
+my_data$Discount.Applied<- as.factor(my_data$Discount.Applied)
+my_data$Promo.Code.Used<- as.factor(my_data$Promo.Code.Used)
+my_data$Previous.Purchases<- as.numeric(my_data$Previous.Purchases)
+my_data$Preferred.Payment.Method<- as.factor(my_data$Preferred.Payment.Method)
+my_data$Frequency.of.Purchases<- as.factor(my_data$Frequency.of.Purchases)
+
+str(my_data)
+
+head(my_data)
+
+# Plotting the numerical variables in the dataset
+cor(my_data[ , c(2, 6, 11, 17)])
+
+my_data_numericals<-data.frame(my_data[ , c(2,6,11,17)])
+plot(my_data_numericals)
+
+corrplot(cor(my_data_numericals), type= "full", tl.col="navy", bg="white", col=NULL )
+
+plot(my_data$Purchase.Amount..USD.,my_data$Review.Rating, main = "Purchase Amount and Review Rating", xlab = "Purchase Amount", ylab = "Review Rating")
+
+plot(my_data$Review.Rating, my_data$Previous.Purchases, main = "Review Rating and Previous Purchase", xlab = "Review Rating", ylab = "Previous Purchase")
+
+plot(my_data$Previous.Purchases, my_data$Purchase.Amount..USD., main = "Previous Purchase and Purchase Amount ", xlab = "Previous Purchase", ylab = "Purchase Amount")
+
+summary(my_data[ , c(-1) ])
+
+summary(my_data_numericals)
+
+table(my_data$Gender)
+
+#Percentage Distribution:
+1248/3900 #Female
+
+2652/3900 #Male
+
+barplot(table(my_data$Gender), main = "Customer Shopping by Gender", xlab ="Gender", ylab = "No. of Purchases")
+
+table(my_data$Category)
+
+# Percentage Distribution:
+1240/3900 # Accessories
+1737/3900 # Clothing
+599/3900 # Footwear
+324/3900 # Outerwear
+
+barplot(table(my_data$Category), main = "Products Shopped by Customers", xlab = "Category", ylab = "No. of Purchases")
+
+table(my_data$Frequency.of.Purchases)
+
+#Percentage Distribution:
+572/3900 # Annually
+547/3900 # Bi-Weekly
+584/3900 # Every 3 Months
+542/3900 # Fortnightly
+553/3900 # Monthly
+563/3900 # Quarterly
+539/3900 # Weekly
+
+barplot(table(my_data$Frequency.of.Purchases), main = "Shopping Base on Returning Customers", xlab = "Frequency of Purchases", ylab = "No. of Purchases")
+
+table(my_data$Size)
+
+#Percentage Distribution:
+1053/3900 #L
+1755/3900 #M
+663/3900 #S
+429/3900 #XL
+
+pie(table(my_data$Size), main = "Customer Size")
+
+table(my_data$Season)
+
+#Percentage Distribution:
+975/3900 # Fall
+999/3900 # Spring
+955/3900 # Summer
+971/3900 # Winter
+  
+pie(table(my_data$Season), main = "Shopping Base on Season")
+
+my_data%>%
+  ggplot(aes(Gender, Purchase.Amount..USD.)) +
+  geom_boxplot()+
+  theme_bw()+
+  labs(x= "Gender", y="Purchase Amount")
+
+my_data%>%
+  ggplot(aes(Gender, Previous.Purchases)) +
+  geom_boxplot()+
+  theme_bw()+
+  labs(x= "Gender", y="Previous Purchases")
+
+my_data%>%
+  ggplot(aes(Review.Rating, Purchase.Amount..USD.)) +
+  geom_point(aes(size = Previous.Purchases))+
+  coord_flip()+
+  theme_classic()
+
+my_data%>%
+  ggplot(aes(Location, Purchase.Amount..USD.)) +
+  geom_point()+
+  coord_flip()+
+  theme_gray()
+
+my_data %>%
+  ggplot(aes(Purchase.Amount..USD.)) +
+  geom_density()+
+  facet_wrap(~Category)
+theme_bw()
+
+my_data %>% 
+  ggplot(aes(Purchase.Amount..USD.))+
+  geom_histogram(stat = "count")+
+  labs(x= "Purchase Amount",
+       y= "No. of Orders")+
+  theme_bw()
+
+my_data %>%
+  ggplot(aes(Purchase.Amount..USD.)) +
+  geom_density(colour = "navyblue", fill = "seagreen")+
+  facet_wrap(~Item.Purchased)+
+  theme_classic()
+
+#changing Discount.Applied variable to 0 and 1
+my_data <- my_data %>%
+  mutate(Discount.Applied = ifelse(Discount.Applied == "Yes", 1, 0))
+
+my_data %>%
+  ggplot(aes(Discount.Applied, Purchase.Amount..USD.)) +
+  stat_density_2d(geom = "tile", contour = FALSE, aes(fill=..density..))+
+  scale_fill_gradientn(colours = rainbow(5))+
+  labs(x="Discount Applied", y="Purchase Amount")+
+  theme_classic()
+
+Important_Categoricals <- data.frame(my_data[ , c(5, 7, 10)])
+
+library(fastDummies)
+
+Important_Categoricals <- dummy_cols(Important_Categoricals, remove_most_frequent_dummy = FALSE)
+view(Important_Categoricals)
+
+Variablesfor_kmeans <- cbind(my_data_numericals, Important_Categoricals[ ,4:10])
+head(Variablesfor_kmeans)
+
+class(Variablesfor_kmeans)
+
+library(factoextra)
+fviz_nbclust(Variablesfor_kmeans, kmeans, method = "wss")+
+  labs(subtitle = "Elbow Method")
+
+clusters <- kmeans (Variablesfor_kmeans, centers = 8, iter.max = 10)
+clusters
